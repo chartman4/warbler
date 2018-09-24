@@ -1,0 +1,76 @@
+To run this you need to:
+1. start mongo in one terminal with: mongod
+2. while in warbler-server directory start the server in another terminal  with: nodemon
+3. Can use httPie to signup:
+    http POST localhost:8081/api/auth/signup username=firstuser password=secret email=test@firsttest.com
+Or signin:
+    http POST localhost:8081/api/auth/signin password=secret email=test@firsttest.com
+Should Return status code 200 and 
+    {
+    "id": "5ba2f23dc5d576333c4c76ac",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTJmMjNkYzVkNTc2MzMzYzRjNzZhYyIsInVzZXJuYW1lIjoiZmlyc3R1c2VyIiwiaWF0IjoxNTM3NzM0MTg4fQ.JYjeOOaYBVAYX320eHUggGrk2NSBy7axtbthx9uDW5U",
+    "username": "firstuser"
+}
+
+4. Can post messages by: 
+http POST localhost:8081/api/users/5ba2f23dc5d576333c4c76ac/messages text="We did it"
+
+To test hacker:
+    http POST localhost:8081/api/auth/signup username=hacker password=hacker email=hacker@hacker.com
+        returns:
+        Mongoose: users.insertOne({ messages: [], _id: ObjectId("5ba7f37f0ad0864054255b5f"), username: 'hacker', password: '$2b$10$Tob/YOm6HyuD5FgcrXJSe.hvBNbJYPDdXpXp2jXSoMM9YihVKDVWm', email: 'hacker@hacker.com', __v: 0dXpXp2jXSoMM9YihVKDVWm', email: 'hacker@hacker.com', __v: 0 })
+
+    Returns:
+    {
+        "id": "5ba7f37f0ad0864054255b5f",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTdmMzdmMGFkMDg2NDA1NDI1NWI1ZiIsInVzZXJuYW1lIjoiaGFja2VyIiwiaWF0IjoxNTM3NzMzNTA0fQ.e9-l0Cu9TiWMrzphcRWVRKdLomXRYlYdYfd5oC7jNnk",
+        "username": "hacker"
+    }
+http POST localhost:8081/api/users/5ba2f23dc5d576333c4c76ac/messages text="hacked" "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTdmMzdmMGFkMDg2NDA1NDI1NWI1ZiIsInVzZXJuYW1lIjoiaGFja2VyIiwiaWF0IjoxNTM3NzMzNTA0fQ.e9-l0Cu9TiWMrzphcRWVRKdLomXRYlYdYfd5oC7jNnk" text=hacked
+Returns:         "message": "Unauthorized"
+
+Testing with HTTPie
+    http POST localhost:8081/api/auth/signup username=matt password=matt email=matt@matt.com
+    If you retry get        "message": "Sorry, that username and/or email is taken"
+
+    http POST localhost:8081/api/auth/signin password=matt email=matt@matt.com
+
+    Get back:
+    {
+    "id": "5ba8286d5554dc3c605cd6ef",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTgyODZkNTU1NGRjM2M2MDVjZDZlZiIsInVzZXJuYW1lIjoibWF0dCIsImlhdCI6MTUzNzc0NzE0Nn0.Nmnjw1zfwZp9erBOXxGP5Tgl0WNuOLLANNbkluoaYJ0",
+    "username": "matt"
+
+    Use to construct
+    http POST localhost:8081/api/users/5ba8286d5554dc3c605cd6ef/messages "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTgyODZkNTU1NGRjM2M2MDVjZDZlZiIsInVzZXJuYW1lIjoibWF0dCIsImlhdCI6MTUzNzc0NzE0Nn0.Nmnjw1zfwZp9erBOXxGP5Tgl0WNuOLLANNbkluoaYJ0" text="Hello everyone"
+}
+    Get back:
+    {
+    "__v": 0,
+    "_id": "5ba82a1e5554dc3c605cd6f2",
+    "createdAt": "2018-09-24T00:04:46.399Z",
+    "text": "Hello everyone",
+    "updatedAt": "2018-09-24T00:04:46.399Z",
+    "user": {
+        "_id": "5ba8286d5554dc3c605cd6ef",
+        "username": "matt"
+    }
+}
+
+    http POST localhost:8081/api/users/5ba8286d5554dc3c605cd6ef/messages "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTgyODZkNTU1NGRjM2M2MDVjZDZlZiIsInVzZXJuYW1lIjoibWF0dCIsImlhdCI6MTUzNzc0NzE0Nn0.Nmnjw1zfwZp9erBOXxGP5Tgl0WNuOLLANNbkluoaYJ0" text="goodbye everyone"
+
+Signin as hacker to get token
+    http POST localhost:8081/api/auth/signin password=hacker email=hacker@hacker.com
+Get
+
+{
+    "id": "5ba7f37f0ad0864054255b5f",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTdmMzdmMGFkMDg2NDA1NDI1NWI1ZiIsInVzZXJuYW1lIjoiaGFja2VyIiwiaWF0IjoxNTM3NzQ3NzI5fQ.sOK6M-RSPxa7u6iq9h30Cl62zWxE1yYXdv8duL_7xqU",
+    "username": "hacker"
+}
+
+Try to add messag with matt id but hacker authorization
+    http POST localhost:8081/api/users/5ba8286d5554dc3c605cd6ef/messages "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViYTdmMzdmMGFkMDg2NDA1NDI1NWI1ZiIsInVzZXJuYW1lIjoiaGFja2VyIiwiaWF0IjoxNTM3NzQ3NzI5fQ.sOK6M-RSPxa7u6iq9h30Cl62zWxE1yYXdv8duL_7xqU" text="hacked"
+Get  {  "error": {
+        "message": "Unauthorized"
+    }
