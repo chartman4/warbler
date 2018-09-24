@@ -77,4 +77,4 @@ Get  {  "error": {
 
 Removed git authentication with
 git config credential.modalprompt false --global
-
+git config --global credential.helper wincred
